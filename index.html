@@ -160,7 +160,6 @@
       max-height: 90vh;
       border-radius: 8px;
       cursor: default;
-      /* Removed box-shadow to eliminate outer glow */
     }
   </style>
 </head>
@@ -198,16 +197,16 @@
 
       <!-- Videos as YouTube embeds -->
       <div class="video-wrapper">
-        <iframe src="https://www.youtube.com/embed/ipE3tAkZtbk?rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="FINALLY"></iframe>
+        <iframe src="https://www.youtube.com/embed/ipE3tAkZtbk?enablejsapi=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="FINALLY"></iframe>
       </div>
       <div class="video-wrapper">
-        <iframe src="https://www.youtube.com/embed/km1l2FEP_3E?rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="new"></iframe>
+        <iframe src="https://www.youtube.com/embed/km1l2FEP_3E?enablejsapi=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="new"></iframe>
       </div>
       <div class="video-wrapper">
-        <iframe src="https://www.youtube.com/embed/4nPtfaONCEA?rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="mymessage"></iframe>
+        <iframe src="https://www.youtube.com/embed/4nPtfaONCEA?enablejsapi=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="mymessage"></iframe>
       </div>
       <div class="video-wrapper">
-        <iframe src="https://www.youtube.com/embed/u64c-FpTVq0?rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="everybodyasked"></iframe>
+        <iframe src="https://www.youtube.com/embed/u64c-FpTVq0?enablejsapi=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="everybodyasked"></iframe>
       </div>
     </div>
   </div>
@@ -238,6 +237,10 @@ i’m glad i’m here instead.
 keep growing. i love you.
 ”</p>
       </div>
+
+      <!-- Your journal images with fullscreen -->
+      <img src="images/sadness.jpg" alt="sadness" />
+      <img src="images/sigil.jpg" alt="sigil" />
     </div>
   </div>
 
@@ -272,6 +275,7 @@ keep growing. i love you.
     </div>
   </div>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     const enterBtn = document.getElementById('enter-button');
     const overlay = document.getElementById('enter-overlay');
@@ -315,9 +319,29 @@ keep growing. i love you.
       alert(`Added ${quantity} ${size} tee(s) to cart!`);
     });
 
-    // Fullscreen modal for gallery images
+    // Fullscreen modal for archive gallery images
     const galleryImages = document.querySelectorAll('#archive .gallery img');
     galleryImages.forEach(img => {
+      img.addEventListener('click', () => {
+        const modal = document.createElement('div');
+        modal.id = 'modal-overlay';
+
+        const modalImg = document.createElement('img');
+        modalImg.src = img.src;
+        modalImg.alt = img.alt;
+
+        modal.appendChild(modalImg);
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', () => {
+          document.body.removeChild(modal);
+        });
+      });
+    });
+
+    // Fullscreen modal for fragments images (any img inside #fragments)
+    const fragmentsImages = document.querySelectorAll('#fragments img');
+    fragmentsImages.forEach(img => {
       img.addEventListener('click', () => {
         const modal = document.createElement('div');
         modal.id = 'modal-overlay';
@@ -352,6 +376,51 @@ keep growing. i love you.
         document.body.removeChild(modal);
       });
     });
+
+    // YouTube Iframe API code to pause/mute bg music when videos play
+    let players = [];
+    function onYouTubeIframeAPIReady() {
+      const iframes = document.querySelectorAll('#archive iframe');
+      iframes.forEach((iframe, index) => {
+        players[index] = new YT.Player(iframe, {
+          events: {
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      // YT.PlayerState.PLAYING === 1, PAUSED === 2, ENDED === 0
+      if (event.data === YT.PlayerState.PLAYING) {
+        // Lower or mute bg music volume when video plays
+        fadeAudioVolume(audio, 1, 0, 200);
+      } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+        // Restore bg music volume when video pauses or ends
+        fadeAudioVolume(audio, audio.volume, 1, 400);
+      }
+    }
+
+    function fadeAudioVolume(audioEl, fromVol, toVol, duration) {
+      const stepTime = 50;
+      const steps = duration / stepTime;
+      let currentStep = 0;
+      const volStep = (toVol - fromVol) / steps;
+
+      clearInterval(audioEl._fadeInterval);
+      audioEl._fadeInterval = setInterval(() => {
+        currentStep++;
+        let newVol = fromVol + volStep * currentStep;
+        if (newVol < 0) newVol = 0;
+        if (newVol > 1) newVol = 1;
+        audioEl.volume = newVol;
+
+        if (currentStep >= steps) {
+          clearInterval(audioEl._fadeInterval);
+        }
+      }, stepTime);
+    }
   </script>
 </body>
 </html>
+
