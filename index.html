@@ -140,7 +140,6 @@
       display: none;
     }
 
-    /* Modal overlay for fullscreen image */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -179,7 +178,6 @@
 
   <div id="archive" class="section active fade-in">
     <div class="gallery">
-      <!-- Images -->
       <img src="images/image1.jpg" alt="Image 1" />
       <img src="images/image2.jpg" alt="Image 2" />
       <img src="images/image3.jpg" alt="Image 3" />
@@ -195,7 +193,6 @@
       <img src="images/gate.jpg" alt="gate" />
       <img src="images/blur.jpg" alt="blur" />
 
-      <!-- Videos as YouTube embeds -->
       <div class="video-wrapper">
         <iframe src="https://www.youtube.com/embed/ipE3tAkZtbk?enablejsapi=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen title="FINALLY"></iframe>
       </div>
@@ -238,20 +235,21 @@ keep growing. i love you.
 ”</p>
       </div>
 
-      <!-- Your journal images with fullscreen -->
       <img src="images/sadness.jpg" alt="sadness" />
       <img src="images/sigil.jpg" alt="sigil" />
+      <img src="images/waiting.jpg" alt="waiting" />
+      <img src="images/float.jpg" alt="float" />
+      <img src="images/haveeverything.jpg" alt="haveeverything" />
+      <img src="images/nowill.jpg" alt="nowill" />
     </div>
   </div>
 
   <div id="vault" class="section fade-in">
     <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 2rem;">
-      <!-- Tee image (left) -->
       <div style="flex: 1 1 300px; text-align: center;">
         <img id="tee-image" src="images/teesample.png" alt="Tee Sample" style="width: 80%; max-width: 400px; border-radius: 8px; cursor: zoom-in;" />
       </div>
 
-      <!-- Buy options (right) -->
       <div style="flex: 1 1 300px; color: white; padding: 1rem; max-width: 400px;">
         <div style="margin-bottom: 1rem;">
           <label for="size" style="margin-right: 0.5rem;">Size:</label>
@@ -283,25 +281,19 @@ keep growing. i love you.
 
     enterBtn.addEventListener('click', () => {
       overlay.classList.add('hidden');
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 1000);
-
-      audio.volume = 0;  // start silent
+      setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+      audio.volume = 0;
       setTimeout(() => {
         audio.currentTime = 15;
         audio.play();
-
         let vol = 0;
         const fadeInterval = setInterval(() => {
           if (vol < 1) {
-            vol += 0.02; // increase volume gradually
+            vol += 0.02;
             if (vol > 1) vol = 1;
             audio.volume = vol;
-          } else {
-            clearInterval(fadeInterval);
-          }
-        }, 100); // every 100ms
+          } else clearInterval(fadeInterval);
+        }, 100);
       }, 600);
     });
 
@@ -319,65 +311,21 @@ keep growing. i love you.
       alert(`Added ${quantity} ${size} tee(s) to cart!`);
     });
 
-    // Fullscreen modal for archive gallery images
-    const galleryImages = document.querySelectorAll('#archive .gallery img');
-    galleryImages.forEach(img => {
+    // Fullscreen modal handlers
+    document.querySelectorAll('#archive .gallery img, #fragments img, #tee-image').forEach(img => {
       img.addEventListener('click', () => {
         const modal = document.createElement('div');
         modal.id = 'modal-overlay';
-
         const modalImg = document.createElement('img');
         modalImg.src = img.src;
         modalImg.alt = img.alt;
-
         modal.appendChild(modalImg);
         document.body.appendChild(modal);
-
-        modal.addEventListener('click', () => {
-          document.body.removeChild(modal);
-        });
+        modal.addEventListener('click', () => document.body.removeChild(modal));
       });
     });
 
-    // Fullscreen modal for fragments images (any img inside #fragments)
-    const fragmentsImages = document.querySelectorAll('#fragments img');
-    fragmentsImages.forEach(img => {
-      img.addEventListener('click', () => {
-        const modal = document.createElement('div');
-        modal.id = 'modal-overlay';
-
-        const modalImg = document.createElement('img');
-        modalImg.src = img.src;
-        modalImg.alt = img.alt;
-
-        modal.appendChild(modalImg);
-        document.body.appendChild(modal);
-
-        modal.addEventListener('click', () => {
-          document.body.removeChild(modal);
-        });
-      });
-    });
-
-    // Fullscreen on click for tee image
-    const teeImage = document.getElementById('tee-image');
-    teeImage.addEventListener('click', () => {
-      const modal = document.createElement('div');
-      modal.id = 'modal-overlay';
-
-      const modalImg = document.createElement('img');
-      modalImg.src = teeImage.src;
-      modalImg.alt = teeImage.alt;
-
-      modal.appendChild(modalImg);
-      document.body.appendChild(modal);
-
-      modal.addEventListener('click', () => {
-        document.body.removeChild(modal);
-      });
-    });
-
-    // YouTube Iframe API code to pause/mute bg music when videos play
+    // YouTube iframe control
     let players = [];
     function onYouTubeIframeAPIReady() {
       const iframes = document.querySelectorAll('#archive iframe');
@@ -391,12 +339,9 @@ keep growing. i love you.
     }
 
     function onPlayerStateChange(event) {
-      // YT.PlayerState.PLAYING === 1, PAUSED === 2, ENDED === 0
       if (event.data === YT.PlayerState.PLAYING) {
-        // Lower or mute bg music volume when video plays
         fadeAudioVolume(audio, 1, 0, 200);
       } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-        // Restore bg music volume when video pauses or ends
         fadeAudioVolume(audio, audio.volume, 1, 400);
       }
     }
@@ -414,14 +359,9 @@ keep growing. i love you.
         if (newVol < 0) newVol = 0;
         if (newVol > 1) newVol = 1;
         audioEl.volume = newVol;
-
-        if (currentStep >= steps) {
-          clearInterval(audioEl._fadeInterval);
-        }
+        if (currentStep >= steps) clearInterval(audioEl._fadeInterval);
       }, stepTime);
     }
   </script>
 </body>
 </html>
-
-
